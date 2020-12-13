@@ -18,6 +18,8 @@ public class Animal extends AbstractMapElement {
         this.energy = Config.getStartEnergy();
         this.orientation = MapDirection.NORTH;
         this.genes = new Genotype();
+        map.placeAnimal(this);
+        notifyObservers(MapElementAction.ANIMAL_BORN, null);
     }
 
     public Animal(Animal mom, Animal dad, Vector2d position) {
@@ -26,6 +28,7 @@ public class Animal extends AbstractMapElement {
         this.energy = (mom.energy + dad.energy) / 4;
         this.orientation = MapDirection.randomDirection();
         map.placeAnimal(this);
+        notifyObservers(MapElementAction.ANIMAL_BORN, null);
     }
 
     @Override

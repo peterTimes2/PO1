@@ -3,6 +3,7 @@ package elements;
 import coordinates.Vector2d;
 import map.WorldMap;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -32,6 +33,11 @@ abstract public class AbstractMapElement implements IMapElement {
     @Override
     public void addObserver(IMapElementObserver observer) {
         this.observers.add(observer);
+    }
+
+    @Override
+    public void addAllObservers(Collection<? extends IMapElementObserver> observers) {
+        this.observers.addAll(observers);
     }
 
     @Override

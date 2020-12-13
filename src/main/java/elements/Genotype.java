@@ -64,9 +64,9 @@ public class Genotype {
         }
         for (int i = 0; i < 8; i++) {
             if(genesCount[i] == 0) {
-                int randomPosition = (int)Math.random() * 32;
+                int randomPosition = (int)(Math.random() * 32);
                 while (genesCount[genes.get(randomPosition)] == 0) {
-                    randomPosition = (int)Math.random() * 32;
+                    randomPosition = (int)(Math.random() * 32);
                 }
                 genes.set(randomPosition, i);
             }
@@ -75,5 +75,5 @@ public class Genotype {
 
     public int getRandomDirection() {
         return this.genes.get((int)(Math.random() * 32));
-    };
+    }
 }

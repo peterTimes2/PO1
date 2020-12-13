@@ -4,11 +4,11 @@ import configs.Config;
 import coordinates.MapDirection;
 import coordinates.Vector2d;
 import elements.*;
+import simulation.ISimulationObserver;
 
 import java.util.*;
-
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toList;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class WorldMap implements IMapElementObserver {
     private final Vector2d lowerLeft;
@@ -16,10 +16,12 @@ public class WorldMap implements IMapElementObserver {
     private final Board board;
     private final Map<Vector2d, SortedSet<Animal>> animals;
     private final Map<Vector2d, Plant> plants;
-    private Set<Vector2d> eatingAnimalsFields;
-    private Set<Vector2d> reproductionFields;
+    private final Set<Vector2d> eatingAnimalsFields;
+    private final Set<Vector2d> reproductionFields;
+    private final List<ISimulationObserver> observers;
+    private int day = 0;
 
-    public WorldMap() {
+    public WorldMap(List<ISimulationObserver> observers) {
         Vector2d jungleLowerLeft = Config.getJungleLowerLeft();
         Vector2d jungleUpperRight = Config.getJungleUpperRight();
         this.lowerLeft = new Vector2d(0, 0);
@@ -29,7 +31,7 @@ public class WorldMap implements IMapElementObserver {
         this.plants = new HashMap<>();
         this.eatingAnimalsFields = new HashSet<>();
         this.reproductionFields = new HashSet<>();
-        populateWorld();
+        this.observers = observers;
     }
 
     public Vector2d getLowerLeft() {
@@ -43,42 +45,45 @@ public class WorldMap implements IMapElementObserver {
     @Override
     public void handleElementChange(IMapElement eventTarget, MapElementAction context, Object oldValue) {
         switch (context) {
-            case POSITION_CHANGED: {
+            case POSITION_CHANGED -> {
                 Animal animal = (Animal) eventTarget;
-                System.out.println("new position " + animal.getPosition() + " old position: " + oldValue);
+                Vector2d oldPosition = (Vector2d) oldValue;
+                System.out.println("new position " + animal.getPosition() + " old position: " + oldPosition);
                 if (board.getElements(animal.getPosition()).stream().anyMatch(IMapElement::isConsumable)) {
                     eatingAnimalsFields.add(animal.getPosition());
                 }
                 if (board.getElements(animal.getPosition()).stream().anyMatch(IMapElement::isReproducible)) {
                     reproductionFields.add(animal.getPosition());
                 }
-                animals.get(oldValue).remove(animal);
-                animals.putIfAbsent(animal.getPosition(), new TreeSet<>(Comparator.comparing(Animal::getEnergy))); //TODO REVERSE SORTING
+                animals.get(oldPosition).remove(animal);
+                animals.putIfAbsent(animal.getPosition(), new TreeSet<>(Comparator.comparing(Animal::getEnergy)));
                 animals.get(animal.getPosition()).add(animal);
-                board.removeElement((Vector2d) oldValue, animal);
+                board.removeElement(oldPosition, animal);
                 board.putOnBoard(animal);
-                return;
             }
-            case ANIMAL_DIED: {
+            case ANIMAL_DIED -> {
                 System.out.println("animal died");
                 Animal deceased = (Animal) eventTarget;
                 this.board.removeElement(eventTarget.getPosition(), eventTarget);
                 this.animals.get(deceased.getPosition()).remove(deceased);
-                return;
             }
         }
     }
 
     public void morningRoutine() {
-        reproductionFields = new HashSet<>();
-        eatingAnimalsFields = new HashSet<>();
+        if (day == 0) {
+            populateWorld();
+        }
+        day++;
+        reproductionFields.clear();
+        eatingAnimalsFields.clear();
     }
 
     public void feedAnimals() {
         for (Vector2d field: eatingAnimalsFields) {
             List<Animal> maxEnergyAnimals = animals.get(field)
                  .stream()
-                 .collect(groupingBy(Animal::getEnergy, TreeMap::new, toList()))
+                 .collect(Collectors.groupingBy(Animal::getEnergy, TreeMap::new, Collectors.toList()))
                  .lastEntry()
                  .getValue();
 
@@ -87,6 +92,7 @@ public class WorldMap implements IMapElementObserver {
             }
 
             Plant eaten = this.plants.get(field);
+            eaten.getEaten();
             board.removeElement(eaten.getPosition(), eaten);
             this.plants.remove(field);
         }
@@ -107,11 +113,15 @@ public class WorldMap implements IMapElementObserver {
     public void breedAnimals() {
         for(Vector2d field: reproductionFields) {
             List<Animal> parents = new LinkedList<>();
-            int lastParentEnergy = this.animals.get(field).first().getEnergy();
+            int lastParentEnergy = this.animals.get(field).last().getEnergy();
             for (Animal animal: this.animals.get(field)) {
                 if (animal.getEnergy() == lastParentEnergy || parents.size() < 2) {
                     parents.add(animal);
+                    lastParentEnergy = animal.getEnergy();
                 }
+            }
+            if (parents.size() < 2) {
+                continue;
             }
 
             int randomPositionA = (int) (Math.random() * parents.size());
@@ -135,42 +145,36 @@ public class WorldMap implements IMapElementObserver {
         Optional<Vector2d> jungleEmptyField = board.getRandomEmptyJungleField();
         Optional<Vector2d> steppeEmptyField = board.getRandomEmptySteppeField();
         if (steppeEmptyField.isPresent()) {
-            Plant created = new Plant(steppeEmptyField.get(), this);
-            plants.put(created.getPosition(), created);
-            board.putOnBoard(created);
+            new Plant(steppeEmptyField.get(), this);
         }
         if (jungleEmptyField.isPresent()) {
-            Plant created = new Plant(jungleEmptyField.get(), this);
-            plants.put(created.getPosition(), created);
-            board.putOnBoard(created);
+            new Plant(jungleEmptyField.get(), this);
         }
     }
 
     public void placeAnimal(Animal animal) {
         board.putOnBoard(animal);
-        animals.putIfAbsent(animal.getPosition(), new TreeSet<>(Comparator.comparing(Animal::getEnergy))); //TODO REVERSE SORTING
+        animals.putIfAbsent(animal.getPosition(), new TreeSet<>(Comparator.comparing(Animal::getEnergy)));
         animals.get(animal.getPosition()).add(animal);
         animal.addObserver(this);
+        animal.addAllObservers(observers);
+    }
+
+    public void placePlant(Plant plant) {
+        plants.put(plant.getPosition(), plant);
+        board.putOnBoard(plant);
+        plant.addAllObservers(observers);
     }
 
     private void populateWorld() {
         Optional<Vector2d> randomSteppePosition = board.getRandomEmptySteppeField();
         Optional<Vector2d> randomJunglePosition = board.getRandomEmptyJungleField();
         if (randomSteppePosition.isPresent() && randomJunglePosition.isPresent()) {
-            animals.put(randomSteppePosition.get(), new TreeSet<>(Comparator.comparing(Animal::getEnergy))); //TODO REVERSE SORTING
-            animals.put(randomJunglePosition.get(), new TreeSet<>(Comparator.comparing(Animal::getEnergy))); //TODO REVERSE SORTING
             Animal adam = new Animal(randomSteppePosition.get(),this);
             System.out.println("Adam position: " + adam.getPosition());
             Animal eva = new Animal(randomJunglePosition.get(),this);
             System.out.println("Eva position: " + eva.getPosition());
-            animals.get(randomSteppePosition.get()).add(adam);
-            animals.get(randomJunglePosition.get()).add(eva);
-            board.putOnBoard(adam);
-            board.putOnBoard(eva);
-            adam.addObserver(this);
-            eva.addObserver(this);
         }
-
     }
 
     public boolean isOccupied(Vector2d position) {
@@ -192,4 +196,17 @@ public class WorldMap implements IMapElementObserver {
         }
         return result;
     }
+
+    private Stream<IMapElement> getElementsStream() {
+        Stream<IMapElement> result = Stream.of();
+        for (Set<Animal> animalSet: animals.values()) {
+            result = Stream.concat(animalSet.stream(), result);
+        }
+        return Stream.concat(result, plants.values().stream());
+    }
+
+    public void handleAddingObserver(ISimulationObserver observer) {
+        getElementsStream().forEach(e -> e.addObserver(observer));
+    }
+
 }
