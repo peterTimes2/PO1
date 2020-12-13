@@ -12,7 +12,7 @@ import java.security.InvalidParameterException;
 public class ConfigParser {
     static private final String[] paramsNames = {
             "height", "width", "jungleRatio",
-            "plantEnergy", "moveEnergy", "startEnergy"
+            "plantEnergy", "moveEnergy", "startEnergy", "startAnimals"
     };
 
     public static void parse(String filePath) {
@@ -30,7 +30,8 @@ public class ConfigParser {
                     (int)(long) params.get("startEnergy"),
                     (int)(long) params.get("plantEnergy"),
                     (int)(long) params.get("moveEnergy"),
-                    (double) params.get("jungleRatio")
+                    (double) params.get("jungleRatio"),
+                    (int)(long) params.get("startAnimals")
             );
 
         } catch (FileNotFoundException e) {

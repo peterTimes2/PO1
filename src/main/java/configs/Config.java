@@ -9,12 +9,13 @@ public class Config {
     private static int plantEnergy = 0;
     private static int moveEnergy = 0;
     private static double jungleRatio = 0;
+    private static int startAnimals = 0;
     private static Vector2d jungleLowerLeft = new Vector2d(0, 0);
     private static Vector2d jungleUpperRight = new Vector2d(0, 0);
 
     public static void loadConfig(
           int height, int width, int startEnergy,
-          int plantEnergy,int moveEnergy, double jungleRatio
+          int plantEnergy,int moveEnergy, double jungleRatio, int startAnimals
     ) {
         int jungleXOffset = (int) (width * (1 - jungleRatio) / 2);
         int jungleYOffset = (int) (height * (1 - jungleRatio) / 2);
@@ -24,6 +25,7 @@ public class Config {
         Config.plantEnergy = plantEnergy;
         Config.moveEnergy = moveEnergy;
         Config.jungleRatio = jungleRatio;
+        Config.startAnimals = startAnimals;
         Config.jungleLowerLeft = new Vector2d(jungleXOffset, jungleYOffset);
         Config.jungleUpperRight = new Vector2d(width - jungleXOffset - 1, height - jungleYOffset - 1);
     };
@@ -58,5 +60,9 @@ public class Config {
 
     public static double getJungleRatio() {
         return jungleRatio;
+    }
+
+    public static int getStartAnimals() {
+        return startAnimals;
     }
 }

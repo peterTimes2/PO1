@@ -14,7 +14,6 @@ public class Genotype {
             genes.add(random);
         }
         genes.sort(Integer::compareTo);
-        System.out.println(genes);
     }
 
     public Genotype(Genotype a, Genotype b) {
@@ -28,9 +27,6 @@ public class Genotype {
         }
         genes.sort(Integer::compareTo);
         restoreExtinctGenes();
-        System.out.println(Arrays.toString(parents));
-        System.out.println(Arrays.toString(cutPoints));
-        System.out.println(genes);
     }
 
     private int[] drawParents() {

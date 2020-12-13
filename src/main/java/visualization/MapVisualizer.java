@@ -80,27 +80,23 @@ public class MapVisualizer implements ISimulationObserver {
     public void handleElementChange(IMapElement eventTarget, MapElementAction context, Object oldValue) {
         switch (context) {
             case ANIMAL_BORN -> {
-                System.out.println("Animal born");
                 Animal born = (Animal) eventTarget;
                 Vector2d field = born.getPosition();
-                animals.putIfAbsent(field, new TreeSet<>(Comparator.comparing(Animal::getEnergy)));
+                animals.putIfAbsent(field, new HashSet<>());
                 animals.get(field).add(born);
                 updateFieldIfNeeded(field);
             }
             case PLANT_ADDED -> {
-                System.out.println("PLANT_ADDED_MAP_VISUALIZER");
                 Plant added = (Plant) eventTarget;
                 Vector2d field = added.getPosition();
                 plants.put(field, added);
                 updateFieldIfNeeded(field);
             }
-            // TODO HANDLE PLANT GETTING EATEN
             case POSITION_CHANGED -> {
-                System.out.println("POSITION_CHANGED_MAP_VISUALIZER");
                 Animal animal = (Animal) eventTarget;
                 Vector2d oldPosition = (Vector2d) oldValue;
                 animals.get(oldPosition).remove(animal);
-                animals.putIfAbsent(animal.getPosition(), new TreeSet<>(Comparator.comparing(Animal::getEnergy)));
+                animals.putIfAbsent(animal.getPosition(), new HashSet<>());
                 animals.get(animal.getPosition()).add(animal);
                 updateFieldIfNeeded(oldPosition);
                 updateFieldIfNeeded(animal.getPosition());
@@ -138,7 +134,7 @@ public class MapVisualizer implements ISimulationObserver {
         if (plants.get(field) != null) {
             updated = FieldType.PLANT;
         }
-        animals.putIfAbsent(field, new TreeSet<>(Comparator.comparing(Animal::getEnergy)));
+        animals.putIfAbsent(field, new HashSet<>());
         if (!animals.get(field).isEmpty()) {
             updated = FieldType.ANIMAL_LOW_ENERGY;
         }

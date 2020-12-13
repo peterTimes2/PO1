@@ -17,17 +17,19 @@ public class Main extends Application {
     @Override
     public void start(Stage stage) {
         stage.setTitle("Simulation");
-        String javaVersion = System.getProperty("java.version");
-        String javafxVersion = System.getProperty("javafx.version");
-        javafx.scene.control.Label l = new javafx.scene.control.Label("Hello, JavaFX " + javafxVersion + ", running on Java " + javaVersion + ".");
-        MapVisualizer visualization = new MapVisualizer(Config.getWidth(), Config.getHeight(), Config.getJungleLowerLeft(), Config.getJungleUpperRight());
+        MapVisualizer visualization = new MapVisualizer(
+                Config.getWidth(),
+                Config.getHeight(),
+                Config.getJungleLowerLeft(),
+                Config.getJungleUpperRight()
+        );
         GridPane map  = visualization.getMapVisualization();
         Simulation world = new Simulation();
         world.addObserver(visualization);
         Thread simulationTread = new Thread(() -> {
-            for (int i = 0; i < 150; i++) {
+            for (int i = 0; i < 100; i++) {
                 try {
-                    Thread.sleep(300);
+                    Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

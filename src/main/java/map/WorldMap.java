@@ -14,7 +14,7 @@ public class WorldMap implements IMapElementObserver {
     private final Vector2d lowerLeft;
     private final Vector2d upperRight;
     private final Board board;
-    private final Map<Vector2d, SortedSet<Animal>> animals;
+    private final Map<Vector2d, Set<Animal>> animals;
     private final Map<Vector2d, Plant> plants;
     private final Set<Vector2d> eatingAnimalsFields;
     private final Set<Vector2d> reproductionFields;
@@ -46,18 +46,39 @@ public class WorldMap implements IMapElementObserver {
     public void handleElementChange(IMapElement eventTarget, MapElementAction context, Object oldValue) {
         switch (context) {
             case POSITION_CHANGED -> {
+
                 Animal animal = (Animal) eventTarget;
                 Vector2d oldPosition = (Vector2d) oldValue;
-                System.out.println("new position " + animal.getPosition() + " old position: " + oldPosition);
                 if (board.getElements(animal.getPosition()).stream().anyMatch(IMapElement::isConsumable)) {
                     eatingAnimalsFields.add(animal.getPosition());
                 }
                 if (board.getElements(animal.getPosition()).stream().anyMatch(IMapElement::isReproducible)) {
                     reproductionFields.add(animal.getPosition());
                 }
+                //
+                List<Animal> movingAnimals = new LinkedList<>();
+                for (Set<Animal> animalSet: animals.values()) {
+                    movingAnimals.addAll(animalSet);
+                }
+                System.out.println("size before: " + movingAnimals.size());
+                //
                 animals.get(oldPosition).remove(animal);
-                animals.putIfAbsent(animal.getPosition(), new TreeSet<>(Comparator.comparing(Animal::getEnergy)));
+                animals.putIfAbsent(animal.getPosition(), new HashSet<>());
                 animals.get(animal.getPosition()).add(animal);
+                //
+                List<Animal> movingAnimals2 = new LinkedList<>();
+                for (Set<Animal> animalSet: animals.values()) {
+                    movingAnimals2.addAll(animalSet);
+                }
+                System.out.println("size after: " + movingAnimals2.size());
+                if(movingAnimals2.size() != movingAnimals.size()) {
+                    try {
+                        Thread.sleep(10000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+                //
                 board.removeElement(oldPosition, animal);
                 board.putOnBoard(animal);
             }
@@ -100,28 +121,40 @@ public class WorldMap implements IMapElementObserver {
 
     public void turnAndMoveAnimals() {
         List<Animal> movingAnimals = new LinkedList<>();
-        for (SortedSet<Animal> animalSet: animals.values()) {
+        for (Set<Animal> animalSet: animals.values()) {
             movingAnimals.addAll(animalSet);
         }
+        Set<Animal> set = new HashSet<>(movingAnimals);
+        if (set.size() != movingAnimals.size()) {
+            System.exit(1);
+        }
+        System.out.println(board.getRandomEmptyJungleField().isPresent());
+        System.out.println(board.getRandomEmptySteppeField().isPresent());
+        System.out.println("animals count befgo: " + movingAnimals.size());
         for (Animal animal: movingAnimals) {
-            System.out.println("energy: " + animal.getEnergy() + " position: "+ animal.getPosition());
             animal.turnAndMove();
         }
         System.out.println("animals count: " + movingAnimals.size());
+        System.out.println("day: " + day);
     }
 
     public void breedAnimals() {
         for(Vector2d field: reproductionFields) {
             List<Animal> parents = new LinkedList<>();
-            int lastParentEnergy = this.animals.get(field).last().getEnergy();
-            for (Animal animal: this.animals.get(field)) {
+            if (animals.get(field).size() < 2) {
+                continue;
+            }
+            Iterator<Animal> energySortedAnimalsIterator = animals.get(field)
+                    .stream()
+                    .sorted(Comparator.comparing(Animal::getEnergy).reversed())
+                    .iterator();
+            int lastParentEnergy = 0;
+            while (energySortedAnimalsIterator.hasNext()) {
+                Animal animal = energySortedAnimalsIterator.next();
                 if (animal.getEnergy() == lastParentEnergy || parents.size() < 2) {
                     parents.add(animal);
                     lastParentEnergy = animal.getEnergy();
                 }
-            }
-            if (parents.size() < 2) {
-                continue;
             }
 
             int randomPositionA = (int) (Math.random() * parents.size());
@@ -142,19 +175,18 @@ public class WorldMap implements IMapElementObserver {
     }
 
     public void addPlants() {
+        System.out.println("plants count: " + plants.size());
         Optional<Vector2d> jungleEmptyField = board.getRandomEmptyJungleField();
         Optional<Vector2d> steppeEmptyField = board.getRandomEmptySteppeField();
-        if (steppeEmptyField.isPresent()) {
-            new Plant(steppeEmptyField.get(), this);
-        }
-        if (jungleEmptyField.isPresent()) {
-            new Plant(jungleEmptyField.get(), this);
-        }
+        System.out.println("jungle is present: " + jungleEmptyField.isPresent());
+        System.out.println("steppe is present: " + steppeEmptyField.isPresent());
+        steppeEmptyField.ifPresent(vector2d -> new Plant(vector2d, this));
+        jungleEmptyField.ifPresent(vector2d -> new Plant(vector2d, this));
     }
 
     public void placeAnimal(Animal animal) {
         board.putOnBoard(animal);
-        animals.putIfAbsent(animal.getPosition(), new TreeSet<>(Comparator.comparing(Animal::getEnergy)));
+        animals.putIfAbsent(animal.getPosition(), new HashSet<>());
         animals.get(animal.getPosition()).add(animal);
         animal.addObserver(this);
         animal.addAllObservers(observers);
@@ -167,13 +199,15 @@ public class WorldMap implements IMapElementObserver {
     }
 
     private void populateWorld() {
-        Optional<Vector2d> randomSteppePosition = board.getRandomEmptySteppeField();
-        Optional<Vector2d> randomJunglePosition = board.getRandomEmptyJungleField();
-        if (randomSteppePosition.isPresent() && randomJunglePosition.isPresent()) {
-            Animal adam = new Animal(randomSteppePosition.get(),this);
-            System.out.println("Adam position: " + adam.getPosition());
-            Animal eva = new Animal(randomJunglePosition.get(),this);
-            System.out.println("Eva position: " + eva.getPosition());
+        int animalsCount = 0;
+        while(animalsCount < Config.getStartAnimals()) {
+            Optional<Vector2d> randomSteppePosition = board.getRandomEmptySteppeField();
+            Optional<Vector2d> randomJunglePosition = board.getRandomEmptyJungleField();
+            if (randomSteppePosition.isPresent() && randomJunglePosition.isPresent()) {
+                Animal a = new Animal((int)(Math.random() * 2) == 1 ? randomJunglePosition.get() : randomSteppePosition.get(),this);
+                System.out.println("starting animal pos: " + a.getPosition());
+                animalsCount++;
+            }
         }
     }
 
