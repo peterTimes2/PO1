@@ -15,10 +15,10 @@ import utils.ImagesManager;
 import java.util.*;
 
 public class MapVisualizer implements ISimulationObserver {
-    private static final String earthTexturePath = "earth.jpg";
-    private static final String grassTexturePath = "grass.png";
-    private static final String animalTexturePath = "animal.png";
-    private static final String jungleTexturePath = "jungle.jpg";
+    private static final String earthTexturePath = "earth-32.jpg";
+    private static final String grassTexturePath = "grass-32.jpg";
+    private static final String animalTexturePath = "animal-32.jpg";
+    private static final String jungleTexturePath = "jungle-32.jpg";
     private static final String superSaiyanTexturePath = "";
     private final Vector2d jungleLowerLeft;
     private final Vector2d jungleUpperRight;
