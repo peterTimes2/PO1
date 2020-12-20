@@ -117,6 +117,9 @@ public class MapVisualizer implements ISimulationObserver {
                 Vector2d field = deceased.getPosition();
                 this.animals.get(field).remove(deceased);
                 updateFieldIfNeeded(field);
+                if (trackedAnimal.isPresent() && deceased == trackedAnimal.get()) {
+                    trackedAnimal = Optional.empty();
+                }
             }
             case PLANT_EATEN -> {
                 Plant eaten = (Plant) eventTarget;
@@ -206,7 +209,6 @@ public class MapVisualizer implements ISimulationObserver {
             updateMapGrid(previouslyTrackedField, getTexture(fieldsToUpdate.get(previouslyTrackedField)));
         }
         if (tracked.isPresent()) {
-            updateTrackedAnimalPanel();
             updateMapGrid(tracked.get().getPosition(), getTexture(FieldType.ANIMAL_TRACKED));
             currentFields.put(tracked.get().getPosition(), FieldType.ANIMAL_TRACKED);
         }
@@ -223,6 +225,7 @@ public class MapVisualizer implements ISimulationObserver {
         texture.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
             animals.putIfAbsent(field, new HashSet<>());
             updateTrackedAnimal(animals.get(field).stream().max(Comparator.comparing(Animal::getEnergy)));
+            updateTrackedAnimalPanel();
             event.consume();
         });
     }
