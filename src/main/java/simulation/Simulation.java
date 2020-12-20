@@ -1,5 +1,6 @@
 package simulation;
 
+import configs.Config;
 import map.WorldMap;
 
 import java.util.LinkedList;
@@ -31,7 +32,7 @@ public class Simulation {
     private void run() {
         while (true) {
             try {
-                Thread.sleep(50);
+                Thread.sleep(Config.getDayRefreshTime());
                 if (!isRunning) {
                     synchronized (simulationThread) {
                         simulationThread.wait();

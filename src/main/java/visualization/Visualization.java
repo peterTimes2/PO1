@@ -1,6 +1,5 @@
 package visualization;
 
-import coordinates.Vector2d;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -15,13 +14,9 @@ public class Visualization {
     private final Simulation simulation;
     public Visualization(
         Stage window,
-        Simulation simulation,
-        int mapWidth,
-        int mapHeight,
-        Vector2d jungleLowerLeft,
-        Vector2d jungleUpperRight
+        Simulation simulation
     ) {
-        this.mapVisualizer = new MapVisualizer(mapWidth, mapHeight, jungleLowerLeft, jungleUpperRight);
+        this.mapVisualizer = new MapVisualizer();
         this.window = window;
         this.simulation = simulation;
         simulation.addObserver(mapVisualizer);

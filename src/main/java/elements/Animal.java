@@ -11,20 +11,20 @@ import java.util.List;
 public class Animal extends AbstractMapElement {
     private int energy;
     private MapDirection orientation;
-    public Genotype genes;
+    private Genotype genotype;
 
     public Animal(Vector2d position, WorldMap map) {
         super(position, map);
         this.energy = Config.getStartEnergy();
         this.orientation = MapDirection.NORTH;
-        this.genes = new Genotype();
+        this.genotype = new Genotype();
         map.placeAnimal(this);
         notifyObservers(MapElementAction.ANIMAL_BORN, null);
     }
 
     public Animal(Animal mom, Animal dad, Vector2d position) {
         super(position, mom.map);
-        this.genes = new Genotype(mom.genes, dad.genes);
+        this.genotype = new Genotype(mom.genotype, dad.genotype);
         this.energy = (mom.energy + dad.energy) / 4;
         this.orientation = MapDirection.randomDirection();
         map.placeAnimal(this);
@@ -57,7 +57,7 @@ public class Animal extends AbstractMapElement {
             notifyObservers(MapElementAction.ANIMAL_DIED, null);
             return;
         }
-        orientation = orientation.add(genes.getRandomDirection());
+        orientation = orientation.add(genotype.getRandomDirection());
         Vector2d newPosition = getPosition().add(orientation.toUnitVector());
         newPosition = newPosition.fitToRectangle(map.getLowerLeft(), map.getUpperRight());
         setPosition(newPosition);
@@ -70,5 +70,9 @@ public class Animal extends AbstractMapElement {
 
     public int getEnergy() {
         return energy;
+    }
+
+    public List<Integer> getGenes() {
+        return genotype.genes;
     }
 }

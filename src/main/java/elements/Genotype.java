@@ -5,7 +5,7 @@ import java.util.List;
 
 public class Genotype {
     private static final int genotypeSize = 32;
-    private final List<Integer> genes;
+    protected final List<Integer> genes;
 
     public Genotype() {
         this.genes = new ArrayList<>(genotypeSize);

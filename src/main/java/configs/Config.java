@@ -12,6 +12,11 @@ public class Config {
     private static int startAnimals = 0;
     private static Vector2d jungleLowerLeft = new Vector2d(0, 0);
     private static Vector2d jungleUpperRight = new Vector2d(0, 0);
+    private static final double fullEnergyRatio = 2.5;
+    private static final double highEnergyRatio = 1.5;
+    private static final double normalEnergyRatio = 0.5;
+    private static final double lowEnergyRatio = 0.1;
+    private static final int dayRefreshTime = 100;
 
     public static void loadConfig(
           int height, int width, int startEnergy,
@@ -28,7 +33,7 @@ public class Config {
         Config.startAnimals = startAnimals;
         Config.jungleLowerLeft = new Vector2d(jungleXOffset, jungleYOffset);
         Config.jungleUpperRight = new Vector2d(width - jungleXOffset - 1, height - jungleYOffset - 1);
-    };
+    }
 
     public static int getHeight() {
         return height;
@@ -64,5 +69,25 @@ public class Config {
 
     public static int getStartAnimals() {
         return startAnimals;
+    }
+
+    public static double getFullEnergyRatio() {
+        return fullEnergyRatio;
+    }
+
+    public static double getHighEnergyRatio() {
+        return highEnergyRatio;
+    }
+
+    public static double getNormalEnergyRatio() {
+        return normalEnergyRatio;
+    }
+
+    public static double getLowEnergyRatio() {
+        return lowEnergyRatio;
+    }
+
+    public static int getDayRefreshTime() {
+        return dayRefreshTime;
     }
 }

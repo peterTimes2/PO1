@@ -5,6 +5,5 @@ public enum MapElementAction {
     POSITION_CHANGED,
     ANIMAL_BORN,
     PLANT_ADDED,
-    ANIMAL_ENERGY_LEVEL_CHANGED,
     PLANT_EATEN,
 }

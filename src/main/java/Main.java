@@ -17,11 +17,7 @@ public class Main extends Application {
         Simulation world = new Simulation();
         Visualization visualization = new Visualization(
                 stage,
-                world,
-                Config.getWidth(),
-                Config.getHeight(),
-                Config.getJungleLowerLeft(),
-                Config.getJungleUpperRight()
+                world
         );
         world.startSimulation();
         visualization.render();
