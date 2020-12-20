@@ -1,4 +1,3 @@
-import configs.Config;
 import configs.ConfigParser;
 import javafx.application.Application;
 import javafx.stage.Stage;

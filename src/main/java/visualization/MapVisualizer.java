@@ -197,6 +197,9 @@ public class MapVisualizer implements ISimulationObserver {
             trackedAnimalPanel.getChildren().add(new Label("position: " + animal.getPosition()));
             trackedAnimalPanel.getChildren().add(new Label("energy: " + animal.getEnergy()));
             trackedAnimalPanel.getChildren().add(new Label("genes: " + animal.getGenes()));
+            trackedAnimalPanel.getChildren().add(new Label("children count: " + animal.getChildrenCount()));
+            trackedAnimalPanel.getChildren().add(new Label("successors count: " + animal.getSuccessorsCount()));
+            trackedAnimalPanel.getChildren().add(new Label("age: " + animal.getAge()));
         }
     }
 
