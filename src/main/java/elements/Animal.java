@@ -1,10 +1,8 @@
 package elements;
-
 import configs.Config;
 import coordinates.MapDirection;
 import coordinates.Vector2d;
 import map.WorldMap;
-
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -63,8 +61,8 @@ public class Animal extends AbstractMapElement {
     }
 
     public Animal growFamily(Animal partner) {
-        energy = energy * 3 / 4;
-        partner.energy = partner.energy * 3 / 4;
+        setEnergy(energy * 3 / 4);
+        partner.setEnergy(partner.energy * 3 / 4);
         List<Vector2d> emptyNeighbours = map.getEmptyNeighbours(getPosition());
         Vector2d childPosition = getPosition().add(MapDirection.randomDirection().toUnitVector());
         if (!emptyNeighbours.isEmpty()) {
@@ -87,11 +85,11 @@ public class Animal extends AbstractMapElement {
         Vector2d newPosition = getPosition().add(orientation.toUnitVector());
         newPosition = newPosition.fitToRectangle(map.getLowerLeft(), map.getUpperRight());
         setPosition(newPosition);
-        energy -= Config.getMoveEnergy();
+        setEnergy(energy - Config.getMoveEnergy());
     }
 
     public void consumePlant(int eatingAnimalsCount) {
-        energy += Config.getPlantEnergy() / eatingAnimalsCount;
+        setEnergy(energy + Config.getPlantEnergy() / eatingAnimalsCount);
     }
 
 
@@ -159,5 +157,26 @@ public class Animal extends AbstractMapElement {
 
     public int getAge() {
         return age;
+    }
+
+    public int getMostFrequentGene() {
+        return genotype.getMostFrequentGene();
+    }
+
+    private void setEnergy(int energy) {
+        int oldEnergy = this.energy;
+        this.energy = energy;
+        notifyObservers(MapElementAction.ENERGY_LEVEL_CHANGED, oldEnergy);
+    }
+
+    public int getParentsCount() {
+        int result = 0;
+        if (dad != null && dad.isAlive) {
+            result++;
+        }
+        if (mom != null && mom.isAlive) {
+            result++;
+        }
+        return result;
     }
 }

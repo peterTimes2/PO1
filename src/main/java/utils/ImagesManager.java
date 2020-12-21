@@ -1,5 +1,6 @@
 package utils;
 
+import configs.Config;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
@@ -16,8 +17,8 @@ public class ImagesManager {
             image = new Image(url);
         }
         view = new ImageView(image);
-        view.setFitHeight(20);
-        view.setFitWidth(20);
+        view.setFitHeight((double)(600 / Config.getHeight()));
+        view.setFitWidth((double)(600 / Config.getWidth()));
         return view;
     }
 }

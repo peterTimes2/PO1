@@ -87,7 +87,6 @@ public class MapVisualizer implements ISimulationObserver {
     }
 
 
-    @Override
     public void handleElementChange(IMapElement eventTarget, MapElementAction context, Object oldValue) {
         switch (context) {
             case ANIMAL_BORN -> {
@@ -200,6 +199,7 @@ public class MapVisualizer implements ISimulationObserver {
             trackedAnimalPanel.getChildren().add(new Label("children count: " + animal.getChildrenCount()));
             trackedAnimalPanel.getChildren().add(new Label("successors count: " + animal.getSuccessorsCount()));
             trackedAnimalPanel.getChildren().add(new Label("age: " + animal.getAge()));
+            trackedAnimalPanel.getChildren().add(new Label("dominating gene: " + animal.getMostFrequentGene()));
         }
     }
 
@@ -209,7 +209,9 @@ public class MapVisualizer implements ISimulationObserver {
         if (previous.isPresent()) {
             Vector2d previouslyTrackedField = previous.get().getPosition();
             updateFieldIfNeeded(previouslyTrackedField);
-            updateMapGrid(previouslyTrackedField, getTexture(fieldsToUpdate.get(previouslyTrackedField)));
+            if (fieldsToUpdate.get(previouslyTrackedField) != null) {
+                updateMapGrid(previouslyTrackedField, getTexture(fieldsToUpdate.get(previouslyTrackedField)));
+            }
         }
         if (tracked.isPresent()) {
             updateMapGrid(tracked.get().getPosition(), getTexture(FieldType.ANIMAL_TRACKED));

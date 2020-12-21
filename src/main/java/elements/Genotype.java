@@ -68,6 +68,25 @@ public class Genotype {
             }
         }
     }
+    public int getMostFrequentGene() {
+        int mostFrequent = 0;
+        int mostFrequentGeneCount = 0;
+        int currentGeneCount = 0;
+        int previousGene = 0;
+        for (int i: genes) {
+            if (i == previousGene) {
+                currentGeneCount++;
+            } else {
+                if (currentGeneCount > mostFrequentGeneCount) {
+                    mostFrequent = previousGene;
+                    mostFrequentGeneCount = currentGeneCount;
+                }
+                currentGeneCount = 1;
+                previousGene = i;
+            }
+        }
+        return mostFrequent;
+    }
 
     public int getRandomDirection() {
         return this.genes.get((int)(Math.random() * 32));

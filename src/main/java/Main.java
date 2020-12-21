@@ -2,6 +2,7 @@ import configs.ConfigParser;
 import javafx.application.Application;
 import javafx.stage.Stage;
 import simulation.Simulation;
+import statistics.StatisticsManager;
 import visualization.Visualization;
 
 public class Main extends Application {
@@ -14,11 +15,16 @@ public class Main extends Application {
     @Override
     public void start(Stage stage) {
         Simulation world = new Simulation();
-        Visualization visualization = new Visualization(
-                stage,
-                world
-        );
+        StatisticsManager statistics = new StatisticsManager(world);
+        Visualization visualization = new Visualization(stage, world, statistics);
         world.startSimulation();
         visualization.render();
+
+        Simulation world2 = new Simulation();
+        StatisticsManager statistics2 = new StatisticsManager(world2);
+        Visualization visualization2 = new Visualization(new Stage(), world2, statistics2);
+        world2.startSimulation();
+        visualization2.render();
     }
+
 }
