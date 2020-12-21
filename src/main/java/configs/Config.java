@@ -16,7 +16,7 @@ public class Config {
     private static final double highEnergyRatio = 1.5;
     private static final double normalEnergyRatio = 0.5;
     private static final double lowEnergyRatio = 0.1;
-    private static final int dayRefreshTime = 125;
+    private static final int dayRefreshTime = 150;
 
     public static void loadConfig(
           int height, int width, int startEnergy,
