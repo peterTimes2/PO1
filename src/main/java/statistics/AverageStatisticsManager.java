@@ -9,9 +9,9 @@ public class AverageStatisticsManager {
     private int averageAnimalsCountSum = 0;
     private int averageDeadAnimalsAgeSum = 0;
     private int averageLivingAnimalsEnergySum = 0;
-    private int averageChildrenCountSum = 0;
     private int worldAge = 0;
-    private int dayToWriteStatistics;
+    private double averageChildrenCountSum = 0;
+    private final int dayToWriteStatistics;
 
     public AverageStatisticsManager(int dayToWriteStatistics) {
         this.dayToWriteStatistics = dayToWriteStatistics;
@@ -43,7 +43,6 @@ public class AverageStatisticsManager {
             } else {
                 System.out.println("File already exists.");
             }
-            averageStatisticsFile.setWritable(true);
             FileWriter writer = new FileWriter(averageStatisticsFile);
             writer.write("{" + System.lineSeparator());
             writer.append("\t\"averagePlantsCount\": ")

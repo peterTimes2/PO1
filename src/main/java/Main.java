@@ -15,7 +15,7 @@ public class Main extends Application {
     @Override
     public void start(Stage stage) {
         Simulation world = new Simulation();
-        StatisticsManager statistics = new StatisticsManager(world);
+        StatisticsManager statistics = new StatisticsManager(world, 50);
         Visualization visualization = new Visualization(stage, world, statistics);
         world.startSimulation();
         visualization.render();
