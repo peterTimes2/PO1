@@ -41,7 +41,7 @@ public class AverageStatisticsManager {
             if (averageStatisticsFile.createNewFile()) {
                 System.out.println("File created: " + averageStatisticsFile.getName());
             } else {
-                System.out.println("File already exists.");
+                System.out.println("File already exists: " + averageStatisticsFile.getName());
             }
             FileWriter writer = new FileWriter(averageStatisticsFile);
             writer.write("{" + System.lineSeparator());

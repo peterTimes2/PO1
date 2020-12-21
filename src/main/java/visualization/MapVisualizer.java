@@ -40,6 +40,7 @@ public class MapVisualizer implements ISimulationObserver {
     private final Map<Vector2d, Set<Animal>> animals;
     private final Map<Vector2d, Plant> plants;
     private Optional<Animal> trackedAnimal;
+    private Animal deadTrackedAnimal = null;
 
     public MapVisualizer() {
         this.mapVisualization = new GridPane();
@@ -117,6 +118,7 @@ public class MapVisualizer implements ISimulationObserver {
                 this.animals.get(field).remove(deceased);
                 updateFieldIfNeeded(field);
                 if (trackedAnimal.isPresent() && deceased == trackedAnimal.get()) {
+                    deadTrackedAnimal = deceased;
                     trackedAnimal = Optional.empty();
                 }
             }
@@ -200,8 +202,15 @@ public class MapVisualizer implements ISimulationObserver {
             trackedAnimalPanel.getChildren().add(new Label("successors count: " + animal.getSuccessorsCount()));
             trackedAnimalPanel.getChildren().add(new Label("age: " + animal.getAge()));
             trackedAnimalPanel.getChildren().add(new Label("dominating gene: " + animal.getMostFrequentGene()));
+        } else if (deadTrackedAnimal != null) {
+            trackedAnimalPanel.getChildren().add(new Label("animal died at age: " + deadTrackedAnimal.getAge()));
+            trackedAnimalPanel.getChildren().add(new Label("genes: " + deadTrackedAnimal.getGenes()));
+            trackedAnimalPanel.getChildren().add(new Label("children count: " + deadTrackedAnimal.getChildrenCount()));
+            trackedAnimalPanel.getChildren().add(new Label("successors count: " + deadTrackedAnimal.getSuccessorsCount()));
+            trackedAnimalPanel.getChildren().add(new Label("dominating gene: " + deadTrackedAnimal.getMostFrequentGene()));
         }
     }
+
 
     private void updateTrackedAnimal(Optional<Animal> tracked) {
         Optional<Animal> previous = trackedAnimal;
@@ -228,6 +237,7 @@ public class MapVisualizer implements ISimulationObserver {
 
     private void attachClickEventHandler(ImageView texture, Vector2d field) {
         texture.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
+            deadTrackedAnimal = null;
             animals.putIfAbsent(field, new HashSet<>());
             updateTrackedAnimal(animals.get(field).stream().max(Comparator.comparing(Animal::getEnergy)));
             updateTrackedAnimalPanel();
