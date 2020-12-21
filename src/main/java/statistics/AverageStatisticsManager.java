@@ -11,7 +11,7 @@ public class AverageStatisticsManager {
     private int averageLivingAnimalsEnergySum = 0;
     private int averageChildrenCountSum = 0;
     private int worldAge = 0;
-    private int dayToWriteStatistics = -1;
+    private int dayToWriteStatistics;
 
     public AverageStatisticsManager(int dayToWriteStatistics) {
         this.dayToWriteStatistics = dayToWriteStatistics;

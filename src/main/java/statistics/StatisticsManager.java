@@ -18,8 +18,12 @@ public class StatisticsManager implements ISimulationObserver {
     private final AverageStatisticsManager averageStatistics;
 
     public StatisticsManager(Simulation simulation) {
+        this(simulation, -1);
+    }
+
+    public StatisticsManager(Simulation simulation, int dayToWriteStatisticsToFile) {
         simulation.addObserver(this);
-        this.averageStatistics = new AverageStatisticsManager(5);
+        this.averageStatistics = new AverageStatisticsManager(dayToWriteStatisticsToFile);
     }
 
     @Override
@@ -92,9 +96,5 @@ public class StatisticsManager implements ISimulationObserver {
 
     public int getWorldAge() {
         return worldAge;
-    }
-
-    public AverageStatisticsManager getAverageStatistics() {
-        return averageStatistics;
     }
 }
